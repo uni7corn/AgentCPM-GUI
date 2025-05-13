@@ -242,7 +242,7 @@ Source code for SFT and RFT training is provided — see [SFT](sft/readme.md) an
 
 ### Agent Benchmark
 
-| Dataset                   | Android Control-Low TM | Android Control-Low EM | Android Control-High TM | Android Control-High EM | GUI-Odyssey TM  | GUI-Odyssey EM  | AITZ TM         | AITZ EM         | Chinese APP TM  | Chinese APP EM  |
+| Dataset                   | Android Control-Low TM | Android Control-Low EM | Android Control-High TM | Android Control-High EM | GUI-Odyssey TM  | GUI-Odyssey EM  | AITZ TM         | AITZ EM         | Chinese APP (CAGUI) TM  | Chinese APP (CAGUI) EM  |
 | ------------------------- | ---------------------- | ---------------------- | ----------------------- | ----------------------- | --------------- | --------------- | --------------- | --------------- | --------------- | --------------- |
 | **AgentCPM-GUI-8B** | **94.39**        | **90.20**        | **77.70**         | **69.17**         | **90.85** | **74.96** | **85.71** | **76.38** | **96.86** | **91.28** |
 | Qwen2.5-VL-7B             | 92.11                  | 82.12                  | 69.65                   | 57.36                   | 55.33           | 40.90           | 73.16           | 57.58           | 68.53           | 48.80           |
