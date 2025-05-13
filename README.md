@@ -257,7 +257,7 @@ Source code for SFT and RFT training is provided — see [SFT](sft/readme.md) an
 
 > \*Different train/test splits
 
-All evaluation data and code are open-sourced — see [here](eval) for details.
+TM and EM stand for the **Type Match** and **Exact Match**, respectively. All evaluation data and code are open-sourced — see [here](eval) for details.
 
 ## Evaluation Data
 
