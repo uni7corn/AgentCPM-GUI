@@ -30,7 +30,7 @@ Key features include:
 
 Demo Case (1x speed):
 
-https://github.com/user-attachments/assets/5472a659-cd71-4bce-a181-0981129c6a81
+https://github.com/user-attachments/assets/694d3c2c-12ce-4084-8feb-4937ca9ad247
 
 ## Quick Start
 
