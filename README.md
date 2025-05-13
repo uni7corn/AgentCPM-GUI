@@ -38,7 +38,7 @@ https://github.com/user-attachments/assets/694d3c2c-12ce-4084-8feb-4937ca9ad247
 
 ```bash
 git clone https://github.com/OpenBMB/AgentCPM-GUI
-cd MiniCPM-Agent
+cd AgentCPM-GUI
 conda create -n gui_agent python=3.11
 conda activate gui_agent
 pip install -r requirements.txt
