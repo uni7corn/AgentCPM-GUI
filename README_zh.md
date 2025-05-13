@@ -28,7 +28,7 @@
 
 任务示例（1倍速）：
 
-https://github.com/user-attachments/assets/5472a659-cd71-4bce-a181-0981129c6a81
+https://github.com/user-attachments/assets/694d3c2c-12ce-4084-8feb-4937ca9ad247
 
 ## 快速开始
 
