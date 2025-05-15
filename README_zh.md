@@ -218,6 +218,26 @@ response = predict(instruction, image)
 print(response)
 ```
 
+### 动作空间
+
+在每一步中，智能体都会输出一个 **JSON** 对象，其中包含：
+
+* **唯一**的原子动作（需从下表中选择）；
+* 可选修饰符（`duration`, `thought`）和/或任务级标志位（`STATUS`）。
+
+请注意，所有关键字均 **区分大小写**，并且我们使用 **紧凑 JSON**（即无多余空格），这会影响 tokenizer 的行为。
+
+| Action                | 必填字段                                                                                                        | 可选字段                          | 功能说明                                  | 例子                                     |
+| --------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------- | -------------------------------------- |
+| **Click**             | `POINT:[x,y]`                                                                                               | `duration`,`thought`,`STATUS` | 在归一化坐标系 (0–1000，原点位于左上角) 执行一次轻触。      | `{"POINT":[480,320]}`                  |
+| **Long Press**        | `POINT:[x,y]`<br>`duration:1000`                                                                            | `duration`,`thought`,`STATUS` | 在指定坐标执行长按操作（需设置较长持续时间，例如 > 200 ms）。   | `{"POINT":[480,320]","duration":1000}` |
+| **Swipe**             | `POINT:[x,y]`<br>`to:"up" \| "down" \| "left" \| "right"` **或** `to:[x,y]`                                  | `duration`,`thought`,`STATUS` | 从起始点滑向指定方向 **或** 另一坐标。                | `{"POINT":[500,200],"to":"down"}`      |
+| **Press key**         | `PRESS:"HOME" \| "BACK" \| "ENTER"`                                                                         | `duration`,`thought`,`STATUS` | 触发硬件 / 导航按键。                          | `{"PRESS":"HOME"}`                     |
+| **Type text**         | `TYPE:"<text>"`                                                                                             | `duration`,`thought`,`STATUS` | 在当前输入焦点处输入给定文本。                       | `{"TYPE":"Hello, world!"}`             |
+| **Wait**              | `duration`                                                                                                  | `thought`,`STATUS`            | 在指定时长内保持空闲，不执行任何其他动作。                 | `{"duration":500}`                     |
+| **Task-level status** | `STATUS:"start" \| "continue" \| "finish" \| "satisfied" \| "impossible" \| "interrupt" \| "need_feedback"` | `duration`,`thought`          | 上报任务进度；可 **单独** 出现，也可与原子动作 **同时** 出现。 | `{"STATUS":"finish"}`                  |
+
+
 ## 模型微调
 
 我们开源了训练模型的SFT和RFT代码，参考文档[SFT](sft/readme.md)和[RFT](rft/readme.md)。
