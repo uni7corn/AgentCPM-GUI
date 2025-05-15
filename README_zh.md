@@ -19,7 +19,7 @@
 
 ## 概述
 
-**AgentCPM-GUI**是由[清华大学THUNLP实验室](https://nlp.csai.tsinghua.edu.cn)与[面壁智能](https://modelbest.cn/en)团队联合开发的开源端侧智能体大模型，基于[MiniCPM-V](https://github.com/OpenBMB/MiniCPM-V)构建，总参数量8B，接受手机屏幕图像作为输入，自动执行用户提出的任务。AgentCPM-GUI的主要特性包括：
+**AgentCPM-GUI**是由[清华大学THUNLP实验室](https://nlp.csai.tsinghua.edu.cn)、中国人民大学与[面壁智能](https://modelbest.cn/en)团队联合开发的开源端侧智能体大模型，基于[MiniCPM-V](https://github.com/OpenBMB/MiniCPM-V)构建，总参数量8B，接受手机屏幕图像作为输入，自动执行用户提出的任务。AgentCPM-GUI的主要特性包括：
 
 - **高质量GUI Grounding**：通过在大规模中英文Android数据集上进行预训练，有效提升了对常见GUI控件（如按钮、输入框、标签、图标等）的定位与理解能力；
 - **中文APP操作能力**：首个针对中文APP精细优化的开源GUI Agent，覆盖高德地图、大众点评、哔哩哔哩、小红书等30余个主流中文APP；
