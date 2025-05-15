@@ -19,7 +19,7 @@
 
 ## Overview
 
-**AgentCPM-GUI** is an open-source on-device LLM agent model jointly developed by [THUNLP](https://nlp.csai.tsinghua.edu.cn) and [ModelBest](https://modelbest.cn/en). Built on [MiniCPM-V](https://github.com/OpenBMB/MiniCPM-V) with 8 billion parameters, it accepts smartphone screenshots as input and autonomously executes user-specified tasks. 
+**AgentCPM-GUI** is an open-source on-device LLM agent model jointly developed by [THUNLP](https://nlp.csai.tsinghua.edu.cn), Renmin University of China and [ModelBest](https://modelbest.cn/en). Built on [MiniCPM-V](https://github.com/OpenBMB/MiniCPM-V) with 8 billion parameters, it accepts smartphone screenshots as input and autonomously executes user-specified tasks. 
 
 Key features include:
 
