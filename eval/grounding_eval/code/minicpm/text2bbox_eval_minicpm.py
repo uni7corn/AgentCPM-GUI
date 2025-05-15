@@ -72,7 +72,7 @@ async def call_Qwenvl(item, client, model_name):
     sys_prompt = '''
     你是一个GUI组件定位的专家，擅长输出图片上文本对应的坐标。你的任务是根据给定的GUI截图和图中某个文本输出该文本的坐标。\n    输入：屏幕截图，文本描述\n    输出：文本的相对坐标的中心点,{\"POINT\":[...,...]}为格式
     '''
-    image_path = item["image"].replace("/home/test/test03/zhangzhong/process_aitw/AITW-master-92ebb9b7b93becccfa45f056ffde0afb1516a582/domestic_test/test/", "/share_data/data2/huoyupeng/GUI_Agent_benchmark/test/")
+    image_path = item["image"]
     base64_image, w, h = encode_image(image_path)
     content = []
     # 动态添加base64_image部分到 content 列表
