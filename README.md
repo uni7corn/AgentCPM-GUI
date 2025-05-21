@@ -193,7 +193,7 @@ def predict(text_prompt: str, image: Image.Image):
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": [
-            {"type": "text", "text": f"<Question>{text_prompt}</Question>\n当前屏幕截图："},
+            {"type": "text", "text": f"<Question>{text_prompt}</Question>\n当前屏幕截图：(<image>./</image>)"},
             {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{encode_image(image)}"}}
         ]}
     ]
