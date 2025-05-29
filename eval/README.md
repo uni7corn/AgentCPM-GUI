@@ -394,6 +394,19 @@ See [grounding_eval](grounding_eval/README.md) for grounding tasks.
 
    This option is required to align with the evaluation function provided by the [Qwen2.5-VL](https://github.com/QwenLM/Qwen2.5-VL/issues/904). Qwen uses different processing methods for different datasets. 
 
-5. **Why is there a gap between your evaluation results and the original paper?**
+7. **Why is there a gap between your evaluation results and the original paper?**
 
    Some works have not fully open-sourced the data processing and evaluation scripts used in their experiments, which makes it challenging to reproduce the results. We have made our best effort to debug and achieve optimal results, and we also welcome contributions such as pull requests to help update the results.
+
+8. **How do I run the demo case shown in the video?**
+   
+   Please refer to this [reply](https://github.com/OpenBMB/AgentCPM-GUI/issues/39#issuecomment-2918489075).
+
+9. **Q: If the model is hosted on a remote server but the Android device can only access the local network, is it still possible to run the demo?**
+
+   Yes. While model inference typically requires a GPU and may not run efficiently on local devices, you can still connect your local Android environment to a remote inference server using SSH port forwarding. For example, you can run:
+   ```
+   ssh -L localhost:8000:127.0.0.1:8000 root@gpu_server
+   ```
+   This command forwards the remote server's API to your local machine, allowing you to access the model via `http://localhost:8000/v1/chat/completions` and enable automated interactions from your local Android device.
+
