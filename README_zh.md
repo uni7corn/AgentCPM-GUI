@@ -280,7 +280,11 @@ TM和EM分别代表**类型匹配（Type Match）**和**完全匹配（Exact Mat
 
 ## 评测数据
 
-我们开源了面向中文APP场景的评测数据集CAGUI，涵盖**grounding**和**agent**两类任务，详情见[Huggingface](https://huggingface.co/datasets/openbmb/CAGUI)
+我们开源了面向中文APP场景的评测数据集CAGUI，涵盖**grounding**和**agent**两类任务，详情见[Huggingface](https://huggingface.co/datasets/openbmb/CAGUI)。
+
+## FAQs
+
+点击查看 [FAQs](https://github.com/OpenBMB/AgentCPM-GUI/blob/main/eval/README.md#faqs)。
 
 ## 趋势
 
@@ -295,7 +299,7 @@ TM和EM分别代表**类型匹配（Type Match）**和**完全匹配（Exact Mat
 
 ## 模型协议
 
-* 本仓库中代码依照 [Apache-2.0](./LICENSE) 协议开源
+* 本仓库中代码依照 [Apache-2.0](./LICENSE) 协议开源。
 
 ## 引用
 
