@@ -283,6 +283,10 @@ TM and EM stand for the **Type Match** and **Exact Match**, respectively. All ev
 We provide **CAGUI**, an evaluation benchmark for Chinese apps covering **grounding** and **agent** tasks.
 See the dataset on [Hugging Face](https://huggingface.co/datasets/openbmb/CAGUI).
 
+## FAQs
+
+Click here to view the [FAQs](https://github.com/OpenBMB/AgentCPM-GUI/blob/main/eval/README.md#faqs).
+
 ## Trends
 
 <a href="https://star-history.com/#OpenBMB/AgentCPM-GUI&Date">
