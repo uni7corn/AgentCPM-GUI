@@ -402,7 +402,7 @@ See [grounding_eval](grounding_eval/README.md) for grounding tasks.
    
    Please refer to this [reply](https://github.com/OpenBMB/AgentCPM-GUI/issues/39#issuecomment-2918489075).
 
-9. **Q: If the model is hosted on a remote server but the Android device can only access the local network, is it still possible to run the demo?**
+9. **If the model is hosted on a remote server but the Android device can only access the local network, is it still possible to run the demo?**
 
    Yes. While model inference typically requires a GPU and may not run efficiently on local devices, you can still connect your local Android environment to a remote inference server using SSH port forwarding. For example, you can run:
    ```
@@ -410,3 +410,6 @@ See [grounding_eval](grounding_eval/README.md) for grounding tasks.
    ```
    This command forwards the remote server's API to your local machine, allowing you to access the model via `http://localhost:8000/v1/chat/completions` and enable automated interactions from your local Android device.
 
+10. **ValueError: At most 1 image(s) may be provided in one request.**
+    
+    Please refer to this [issue](https://github.com/OpenBMB/AgentCPM-GUI/issues/39).
