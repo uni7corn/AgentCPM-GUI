@@ -134,7 +134,7 @@ print(outputs)
 
 ```bash
 # 启动vLLM服务
-vllm serve model/AgentCPM-GUI --served-model-name AgentCPM-GUI --tensor_parallel_size 1 --trust-remote-code
+vllm serve model/AgentCPM-GUI --served-model-name AgentCPM-GUI --tensor_parallel_size 1 --trust-remote-code --limit-mm-per-prompt image=10
 ```
 
 ```python
