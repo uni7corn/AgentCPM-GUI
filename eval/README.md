@@ -380,11 +380,36 @@ See [grounding_eval](grounding_eval/README.md) for grounding tasks.
 4. **Resolution requirements?**
 
    It is recommended that the image’s longer side be a maximum of 1120 pixels. Images larger than this should be scaled down proportionally.
+
+5. **What is the coordinate range?**
+
+   AgentCPM-GUI uses relative coordinates ranging from 0-1000. The conversions are as follows:
+   ```python
+   rel_x, rel_y = [int(abs_x / width * 1000), int(abs_y / height * 1000)]
+   abs_x, abs_y = [int(rel_x / 1000 * width), int(rel_y / 1000 * height)]
+   ```
+   where width and height refer to the original width and height of the image, respectively.
    
-5. **Why is `--eval_android_control` needed when evaluating Android Control?**
+6. **Why is `--eval_android_control` needed when evaluating Android Control?**
 
    This option is required to align with the evaluation function provided by the [Qwen2.5-VL](https://github.com/QwenLM/Qwen2.5-VL/issues/904). Qwen uses different processing methods for different datasets. 
 
-5. **Why is there a gap between your evaluation results and the original paper?**
+7. **Why is there a gap between your evaluation results and the original paper?**
 
    Some works have not fully open-sourced the data processing and evaluation scripts used in their experiments, which makes it challenging to reproduce the results. We have made our best effort to debug and achieve optimal results, and we also welcome contributions such as pull requests to help update the results.
+
+8. **How do I run the demo case shown in the video?**
+   
+   Please refer to this [reply](https://github.com/OpenBMB/AgentCPM-GUI/issues/39#issuecomment-2918489075).
+
+9. **If the model is hosted on a remote server but the Android device can only access the local network, is it still possible to run the demo?**
+
+   Yes. While model inference typically requires a GPU and may not run efficiently on local devices, you can still connect your local Android environment to a remote inference server using SSH port forwarding. For example, you can run:
+   ```
+   ssh -L localhost:8000:127.0.0.1:8000 root@gpu_server
+   ```
+   This command forwards the remote server's API to your local machine, allowing you to access the model via `http://localhost:8000/v1/chat/completions` and enable automated interactions from your local Android device.
+
+10. **ValueError: At most 1 image(s) may be provided in one request.**
+    
+    Please refer to this [issue](https://github.com/OpenBMB/AgentCPM-GUI/issues/39).
