@@ -136,7 +136,7 @@ Expected output:
 
 ```bash
 # Launch the vLLM server
-vllm serve model/AgentCPM-GUI --served-model-name AgentCPM-GUI --tensor_parallel_size 1 --trust-remote-code
+vllm serve model/AgentCPM-GUI --served-model-name AgentCPM-GUI --tensor_parallel_size 1 --trust-remote-code --limit-mm-per-prompt image=10
 ```
 
 ```python
