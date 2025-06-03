@@ -10,12 +10,13 @@
   <a href="#快速开始">快速开始</a> •
   <a href="https://huggingface.co/openbmb/AgentCPM-GUI">模型</a> •
   <a href="#评测数据">评测数据</a> •
-  技术报告
+  <a href="https://arxiv.org/abs/2506.01391">技术报告</a>
 </p>
 
 ## 更新日志
 
-* [2025.05.13] 🚀🚀🚀 我们开源了AgentCPM-GUI，面向端侧的GUI Agent，拥有中英文APP操作能力，并基于RFT优化思考能力。
+* [2025-06-03] 📄📄📄 我们发布了AgentCPM-GUI的**技术报告**！点击[这里](https://arxiv.org/abs/2506.01391)查看。
+* [2025-05-13] 🚀🚀🚀 我们开源了AgentCPM-GUI，面向端侧的GUI Agent，拥有中英文APP操作能力，并基于RFT优化思考能力。
 
 ## 概述
 
