@@ -306,12 +306,10 @@ Click here to view the [FAQs](https://github.com/OpenBMB/AgentCPM-GUI/blob/main/
 If **AgentCPM-GUI** is useful for your research, please cite:
 
 ```bibtex
-@misc{2025,
-  author       = {THUNLP},
-  title        = {AgentCPM-GUI},
-  year         = {2025},
-  publisher    = {GitHub},
-  journal      = {GitHub repository},
-  howpublished = {\url{https://github.com/OpenBMB/AgentCPM-GUI}}
+@article{zhang2025agentcpmgui,
+      title={Agent{CPM}-{GUI}: Building Mobile-Use Agents with Reinforcement Fine-Tuning}, 
+      author={Zhong Zhang and Yaxi Lu and Yikun Fu and Yupeng Huo and Shenzhi Yang and Yesai Wu and Han Si and Xin Cong and Haotian Chen and Yankai Lin and Jie Xie and Wei Zhou and Wang Xu and Yuanheng Zhang and Zhou Su and Zhongwu Zhai and Xiaoming Liu and Yudong Mei and Jianming Xu and Hongyan Tian and Chongyi Wang and Chi Chen and Yuan Yao and Zhiyuan Liu and Maosong Sun},
+      year={2025},
+      journal={arXiv preprint arXiv:2506.01391},
 }
 ```
