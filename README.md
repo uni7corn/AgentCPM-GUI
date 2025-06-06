@@ -10,16 +10,17 @@
   <a href="#quick-start">Quick Start</a> •
   <a href="https://huggingface.co/openbmb/AgentCPM-GUI">Model</a> •
   <a href="#evaluation-data">Evaluation Data</a> •
-  Technical Report
+  <a href="https://arxiv.org/abs/2506.01391">Technical Report</a>
 </p>
 
 ## News
 
+* [2025-06-03] 📄📄📄 We have released the **technical report** of AgentCPM-GUI! Check it out [here](https://arxiv.org/abs/2506.01391).
 * [2025-05-13] 🚀🚀🚀 We have open-sourced **AgentCPM-GUI**, an on-device GUI agent capable of operating Chinese & English apps and equipped with RFT-enhanced reasoning abilities.
 
 ## Overview
 
-**AgentCPM-GUI** is an open-source on-device LLM agent model jointly developed by [THUNLP](https://nlp.csai.tsinghua.edu.cn) and [ModelBest](https://modelbest.cn/en). Built on [MiniCPM-V](https://github.com/OpenBMB/MiniCPM-V) with 8 billion parameters, it accepts smartphone screenshots as input and autonomously executes user-specified tasks. 
+**AgentCPM-GUI** is an open-source on-device LLM agent model jointly developed by [THUNLP](https://nlp.csai.tsinghua.edu.cn), Renmin University of China and [ModelBest](https://modelbest.cn/en). Built on [MiniCPM-V](https://github.com/OpenBMB/MiniCPM-V) with 8 billion parameters, it accepts smartphone screenshots as input and autonomously executes user-specified tasks. 
 
 Key features include:
 
@@ -132,11 +133,18 @@ Expected output:
 {"thought":"任务目标是点击屏幕上的‘会员’按钮。当前界面显示了应用的推荐页面，顶部有一个导航栏。点击‘会员’按钮可以访问应用的会员相关内容。","POINT":[729,69]}
 ```
 
+Note: AgentCPM-GUI outputs relative coordinates ranging from 0-1000. The conversions are as follows:
+```python
+rel_x, rel_y = [int(abs_x / width * 1000), int(abs_y / height * 1000)]
+abs_x, abs_y = [int(rel_x / 1000 * width), int(rel_y / 1000 * height)]
+```
+where width and height refer to the original width and height of the image, respectively.
+
 #### vLLM Inference
 
 ```bash
 # Launch the vLLM server
-vllm serve model/AgentCPM-GUI --served-model-name AgentCPM-GUI --tensor_parallel_size 1 --trust-remote-code
+vllm serve model/AgentCPM-GUI --served-model-name AgentCPM-GUI --tensor_parallel_size 1 --trust-remote-code --limit-mm-per-prompt image=10
 ```
 
 ```python
@@ -193,7 +201,7 @@ def predict(text_prompt: str, image: Image.Image):
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": [
-            {"type": "text", "text": f"<Question>{text_prompt}</Question>\n当前屏幕截图："},
+            {"type": "text", "text": f"<Question>{text_prompt}</Question>\n当前屏幕截图：(<image>./</image>)"},
             {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{encode_image(image)}"}}
         ]}
     ]
@@ -218,6 +226,25 @@ instruction = "请点击屏幕上的‘会员’按钮"
 response = predict(instruction, image)
 print(response)
 ```
+
+### Action Space
+
+At each step, the agent outputs is a single JSON object that contains:
+- One (and only one) primitive action, chosen from the list below;
+- Optional modifiers (`duration`, `thought`) and/or a task-level flag (`STATUS`).
+
+Note that all keywords are **case-sensitive**, and we use **compact JSON** (i.e., no extra whitespace), which affects the tokenizer’s behavior.
+
+| Action         | Required field(s)                                                                                           | Optional field(s)             | Purpose                                                                     |  Example                                  |
+| --------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------- | --------------------------------------------------------------------------- | ------------------------------------------------ |
+| **Click**               | `POINT:[x,y]`                                                                                               | `duration`,`thought`,`STATUS` | Single tap at the normalized screen coordinate (0–1000, origin = top-left). | `{"POINT":[480,320]}`                            |
+| **Long Press**               | `POINT:[x,y]`<br>`duration:1000`                                                                                               | `duration`,`thought`,`STATUS` | Touch-and-hold at coordinate (set a longer duration, e.g. >200 ms). | `{"POINT":[480,320],"duration":1000}`                            |
+| **Swipe**      | `POINT:[x,y]`<br>`to:"up" \| "down" \| "left" \| "right"` **or** `to:[x,y]`                                 | `duration`,`thought`,`STATUS` | Swipe from the start point toward a direction **or** another coordinate.     | `{"POINT":[500,200],"to":"down"}` |
+| **Press key**         | `PRESS:"HOME" \| "BACK" \| "ENTER"`                                                                         | `duration`,`thought`,`STATUS` | Trigger a hardware / navigation button.                                     | `{"PRESS":"HOME"}`                |
+| **Type text**         | `TYPE:"<text>"`                                                                    | `duration`,`thought`,`STATUS` | Insert the given text at the current input focus.                           | `{"TYPE":"Hello, world!"}`                       |
+| **Wait**              | `duration`                                                                              | `thought`,`STATUS`            | Idle for the specified time without any other action.                       | `{"duration":500}`                               |
+| **Task-level status** | `STATUS:"start" \| "continue" \| "finish" \| "satisfied" \| "impossible" \| "interrupt" \| "need_feedback"` | `duration`,`thought`          | Report task progress; may appear **alone** or **with a primitive action**.  | `{"STATUS":"finish"}`                        |
+
 
 ## Fine-tuning
 
@@ -264,6 +291,10 @@ TM and EM stand for the **Type Match** and **Exact Match**, respectively. All ev
 We provide **CAGUI**, an evaluation benchmark for Chinese apps covering **grounding** and **agent** tasks.
 See the dataset on [Hugging Face](https://huggingface.co/datasets/openbmb/CAGUI).
 
+## FAQs
+
+Click here to view the [FAQs](https://github.com/OpenBMB/AgentCPM-GUI/blob/main/eval/README.md#faqs).
+
 ## Trends
 
 <a href="https://star-history.com/#OpenBMB/AgentCPM-GUI&Date">
@@ -283,12 +314,10 @@ See the dataset on [Hugging Face](https://huggingface.co/datasets/openbmb/CAGUI)
 If **AgentCPM-GUI** is useful for your research, please cite:
 
 ```bibtex
-@misc{2025,
-  author       = {THUNLP},
-  title        = {AgentCPM-GUI},
-  year         = {2025},
-  publisher    = {GitHub},
-  journal      = {GitHub repository},
-  howpublished = {\url{https://github.com/OpenBMB/AgentCPM-GUI}}
+@article{zhang2025agentcpmgui,
+      title={Agent{CPM}-{GUI}: Building Mobile-Use Agents with Reinforcement Fine-Tuning}, 
+      author={Zhong Zhang and Yaxi Lu and Yikun Fu and Yupeng Huo and Shenzhi Yang and Yesai Wu and Han Si and Xin Cong and Haotian Chen and Yankai Lin and Jie Xie and Wei Zhou and Wang Xu and Yuanheng Zhang and Zhou Su and Zhongwu Zhai and Xiaoming Liu and Yudong Mei and Jianming Xu and Hongyan Tian and Chongyi Wang and Chi Chen and Yuan Yao and Zhiyuan Liu and Maosong Sun},
+      year={2025},
+      journal={arXiv preprint arXiv:2506.01391},
 }
 ```
