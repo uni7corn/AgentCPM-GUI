@@ -133,6 +133,13 @@ Expected output:
 {"thought":"任务目标是点击屏幕上的‘会员’按钮。当前界面显示了应用的推荐页面，顶部有一个导航栏。点击‘会员’按钮可以访问应用的会员相关内容。","POINT":[729,69]}
 ```
 
+Note: AgentCPM-GUI outputs relative coordinates ranging from 0-1000. The conversions are as follows:
+```python
+rel_x, rel_y = [int(abs_x / width * 1000), int(abs_y / height * 1000)]
+abs_x, abs_y = [int(rel_x / 1000 * width), int(rel_y / 1000 * height)]
+```
+where width and height refer to the original width and height of the image, respectively.
+
 #### vLLM Inference
 
 ```bash
