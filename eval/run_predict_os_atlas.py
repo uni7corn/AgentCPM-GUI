@@ -348,14 +348,15 @@ def predict(args, datasets):
                         print(f"Failed to load {episodes_path}: {e}")
                         continue
                         # Skip this file on error
-                    for episode in episodes:
+                    for index,episode in enumerate(episodes):
                         episode_history = []  # Create a separate history for each episode
-                        for prev_episode in episodes[:episode['step_id']-1]:  # Only get history before current step
+                        for prev_episode in episodes[:index]:
+                        #for prev_episode in episodes[:episode['step_id']-1]:  # Only get history before current step
                             image_path = os.path.join(episode_dir, episodes_file, f"{episodes_file}_{prev_episode['step_id']}.jpeg")
                             if not os.path.exists(image_path):
                                 image_path = image_path.replace(".jpeg", ".png")
                             if not os.path.exists(image_path):
-                                image_path = episode["image_path"]
+                                image_path = prev_episode["image_path"]
                             histroy_action = {
                                 "result_action_type": prev_episode['result_action_type'],
                                 "result_action_text": prev_episode['result_action_text'],
