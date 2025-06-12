@@ -144,6 +144,7 @@ where width and height refer to the original width and height of the image, resp
 
 ```bash
 # Launch the vLLM server
+# If run out of VRAM, try add --max_model_len 2048
 vllm serve model/AgentCPM-GUI --served-model-name AgentCPM-GUI --tensor_parallel_size 1 --trust-remote-code --limit-mm-per-prompt image=10
 ```
 
@@ -262,7 +263,7 @@ Source code for SFT and RFT training is provided — see [SFT](sft/readme.md) an
 | Intern2.5-VL-26B          | 14.8           | 16.6           | 36.3           | 22.6           |
 | OS-Genesis-7B             | 8.3            | 5.8            | 4.0            | 6.0            |
 | UI-TARS-7B                | 56.8           | 66.7           | 1.4            | 41.6           |
-| OS-Altas-7B               | 53.6           | 60.7           | 0.4            | 38.2           |
+| OS-Atlas-7B               | 53.6           | 60.7           | 0.4            | 38.2           |
 | Aguvis-7B                 | 60.8           | **76.5**       | 0.2            | 45.8           |
 | GPT-4o                    | 22.1           | 19.9           | 14.3           | 18.8           |
 | GPT-4o with Grounding     | 44.3           | 44.0           | 14.3           | 44.2           |
