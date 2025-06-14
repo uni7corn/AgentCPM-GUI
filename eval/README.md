@@ -2,8 +2,7 @@
 
 ## Grounding Benchmark
 
-
-| Model                   | fun2point | text2point | bbox2text | average |
+| Model                   | Fun2Point | Text2Point | Bbox2Text | Average |
 |-------------------------|-----------|------------|-----------|--------|
 | **AgentCPM-GUI-8B**     | **79.1**  | **76.5**   | **58.2**  |**71.3**|
 | Qwen2.5-VL-7B           | 59.8      | 59.3       | <ins>50.0</ins>      | <ins>56.4</ins>   |
