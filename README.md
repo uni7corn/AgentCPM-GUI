@@ -255,18 +255,18 @@ Source code for SFT and RFT training is provided — see [SFT](sft/readme.md) an
 
 ### Grounding Benchmark
 
-| Model                     | fun2point      | text2point     | bbox2text      | average        |
-| ------------------------- | -------------- | -------------- | -------------- | -------------- |
-| **AgentCPM-GUI-8B**       | **79.1**       | **76.5**       | **58.2**       | **71.3**       |
-| Qwen2.5-VL-7B             | 59.8           | 59.3           | 50.0           | 56.4           |
-| Intern2.5-VL-8B           | 17.2           | 24.2           | 45.9           | 29.1           |
-| Intern2.5-VL-26B          | 14.8           | 16.6           | 36.3           | 22.6           |
-| OS-Genesis-7B             | 8.3            | 5.8            | 4.0            | 6.0            |
-| UI-TARS-7B                | 56.8           | 66.7           | 1.4            | 41.6           |
-| OS-Atlas-7B               | 53.6           | 60.7           | 0.4            | 38.2           |
-| Aguvis-7B                 | 60.8           | **76.5**       | 0.2            | 45.8           |
-| GPT-4o                    | 22.1           | 19.9           | 14.3           | 18.8           |
-| GPT-4o with Grounding     | 44.3           | 44.0           | 14.3           | 44.2           |
+| Model                   | Fun2Point | Text2Point | Bbox2text | Average |
+|-------------------------|-----------|------------|-----------|--------|
+| **AgentCPM-GUI-8B**     | **79.1**  | **76.5**   | **58.2**  |**71.3**|
+| Qwen2.5-VL-7B           | 59.8      | 59.3       | <ins>50.0</ins>      | <ins>56.4</ins>   |
+| Intern2.5-VL-8B         | 17.2      | 24.2       | 45.9      | 29.1   |
+| Intern2.5-VL-26B        | 14.8      | 16.6       | 36.3      | 22.6   |
+| OS-Genesis-7B	        | 8.3	      | 5.8	       | 4.0       | 6.0    |
+| UI-TARS-7B              | 56.8      | <ins>66.7</ins>       | 1.4       | 41.6   |
+| OS-Atlas-7B             | 53.6      | 60.7       | 0.4       | 38.2   |
+| Aguvis-7B	              | <ins>60.8</ins>      | **76.5**   | 0.2       | 45.8   |
+| GPT-4o                  | 22.1      | 19.9       | 14.3      | 18.8   |
+| GPT-4o with Grounding   | 44.3      | 44.0       | 14.3      | 44.2   |
 
 ### Agent Benchmark
 
