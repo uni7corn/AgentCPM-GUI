@@ -2,17 +2,16 @@
 
 ## Grounding Benchmark
 
-
-| Model                   | fun2point | text2point | bbox2text | average |
+| Model                   | Fun2Point | Text2Point | Bbox2Text | Average |
 |-------------------------|-----------|------------|-----------|--------|
 | **AgentCPM-GUI-8B**     | **79.1**  | **76.5**   | **58.2**  |**71.3**|
-| Qwen2.5-VL-7B           | 36.8      | 52.0       | 44.1      | 44.3   |
+| Qwen2.5-VL-7B           | 59.8      | 59.3       | <ins>50.0</ins>      | <ins>56.4</ins>   |
 | Intern2.5-VL-8B         | 17.2      | 24.2       | 45.9      | 29.1   |
 | Intern2.5-VL-26B        | 14.8      | 16.6       | 36.3      | 22.6   |
-| OS-Genesis-7B	          | 8.3	      | 5.8	       | 4.0       | 6.0    |
-| UI-TARS-7B              | 56.8      | 66.7       | 1.4       | 41.6   |
-| OS-Altas-7B             | 53.6      | 60.7       | 0.4       | 38.2   |
-| Aguvis-7B	              | 60.8      | **76.5**   | 0.2       | 45.8   |
+| OS-Genesis-7B	        | 8.3	      | 5.8	       | 4.0       | 6.0    |
+| UI-TARS-7B              | 56.8      | <ins>66.7</ins>       | 1.4       | 41.6   |
+| OS-Atlas-7B             | 53.6      | 60.7       | 0.4       | 38.2   |
+| Aguvis-7B	              | <ins>60.8</ins>      | **76.5**   | 0.2       | 45.8   |
 | GPT-4o                  | 22.1      | 19.9       | 14.3      | 18.8   |
 | GPT-4o with Grounding   | 44.3      | 44.0       | 14.3      | 44.2   |
 
@@ -20,19 +19,20 @@
 
 ## Agent Benchmark
 
-| Dataset       | Android Control-Low TM | Android Control-Low EM | Android Control-High TM | Android Control-High EM | GUI-Odyssey TM | GUI-Odyssey EM | AITZ TM | AITZ EM | Chinese APP TM | Chinese APP EM |
-| ------------- | ---------------------- | ---------------------- | ----------------------- | ----------------------- | -------------- | -------------- | ------- | ------- | -------------- | -------------- |
-| **AgentCPM-GUI-8B** | **94.39** | **90.20** | **77.70** | **69.17** | **90.85** | **74.96** | **85.71** | **76.38** | **96.86** | **91.28** |
-|Qwen2.5-VL-7B  |92.11|82.12|69.65|57.36|55.33|40.90|73.16|57.58|68.53|48.80|
-|UI-TARS-7B     |93.52|88.89|68.53|60.81|78.79|57.33|71.74|55.31|71.01|53.92|
-|OS-Genesis-7B  |90.74|74.22|65.92|44.43|11.67|3.63|19.98|8.45|38.10|14.50|
-|OS-Atlas-7B    |73.03|67.25|70.36|56.53|91.83*|76.76*|74.13|58.45|81.53|55.89|
-|Aguvis-7B      |93.85|89.40|65.56|54.18|26.71|13.54|35.71|18.99|67.43|38.20|
-|OdysseyAgent-7B|65.10|39.16|58.80|32.74|90.83|73.67|59.17|31.60|67.56|25.44|
-|GPT-4o         |-|19.49|-|20.80|-|20.39|70.00|35.30|3.67|3.67|
-|Gemini 2.0     |-|28.50|-|60.20|-|3.27|-|-|-|-|
-|Claude         |-|19.40|-|12.50|60.90|-|-|-|-|-|
->*different train/test split
+| Dataset                   | Android Control-Low TM | Android Control-Low EM | Android Control-High TM | Android Control-High EM | GUI-Odyssey TM  | GUI-Odyssey EM  | AITZ TM         | AITZ EM         | Chinese APP (CAGUI) TM  | Chinese APP (CAGUI) EM  |
+| ------------------------- | ---------------------- | ---------------------- | ----------------------- | ----------------------- | --------------- | --------------- | --------------- | --------------- | --------------- | --------------- |
+| **AgentCPM-GUI-8B** | <ins>94.39</ins> | <ins>90.20</ins> | <ins>77.70</ins> | <ins>69.17</ins> | **90.85** | **74.96** | **85.71** | **76.38** | **96.86** | **91.28** |
+| Qwen2.5-VL-7B             | 94.14                  | 84.96                  | 75.10                   | 62.90                   | 59.54           | 46.28           | 78.41           | 54.61           | 74.18            | 55.16           |
+| UI-TARS-7B                | **95.24**                  | **91.79**                  | **81.63**                   | **74.43**                   | 86.06           | 67.90           | <ins>80.42</ins>           | <ins>65.77</ins>           | <ins>88.62</ins>           | <ins>70.26</ins>           |
+| OS-Genesis-7B             | 90.74                  | 74.22                  | 65.92                   | 44.43                   | 11.67           | 3.63            | 19.98           | 8.45            | 38.10           | 14.50           |
+| OS-Atlas-7B               | 73.03                  | 67.25                  | 70.36                   | 56.53                   | 91.83*            | 76.76*           | 74.13           | 58.45           | 81.53           | 55.89           |
+| Aguvis-7B                 | 93.85                  | 89.40                  | 65.56                   | 54.18                   | 26.71           | 13.54           | 35.71           | 18.99           | 67.43           | 38.20           |
+| OdysseyAgent-7B           | 65.10                  | 39.16                  | 58.80                   | 32.74                   | <ins>90.83</ins>           | <ins>73.67</ins>           | 59.17           | 31.60           | 67.56           | 25.44           |
+| GPT-4o                    | -                      | 19.49                  | -                       | 20.80                   | -               | 20.39           | 70.00           | 35.30           | 3.67            | 3.67            |
+| Gemini 2.0                | -                      | 28.50                  | -                       | 60.20                   | -               | 3.27            | -               | -               | -               | -               |
+| Claude                    | -                      | 19.40                  | -                       | 12.50                   | 60.90           | -               | -               | -               | -               | -               |
+
+> \*Different train/test splits
 
 ## Data Preparation
 
@@ -380,11 +380,36 @@ See [grounding_eval](grounding_eval/README.md) for grounding tasks.
 4. **Resolution requirements?**
 
    It is recommended that the image’s longer side be a maximum of 1120 pixels. Images larger than this should be scaled down proportionally.
+
+5. **What is the coordinate range?**
+
+   AgentCPM-GUI uses relative coordinates ranging from 0-1000. The conversions are as follows:
+   ```python
+   rel_x, rel_y = [int(abs_x / width * 1000), int(abs_y / height * 1000)]
+   abs_x, abs_y = [int(rel_x / 1000 * width), int(rel_y / 1000 * height)]
+   ```
+   where width and height refer to the original width and height of the image, respectively.
    
-5. **Why is `--eval_android_control` needed when evaluating Android Control?**
+6. **Why is `--eval_android_control` needed when evaluating Android Control?**
 
    This option is required to align with the evaluation function provided by the [Qwen2.5-VL](https://github.com/QwenLM/Qwen2.5-VL/issues/904). Qwen uses different processing methods for different datasets. 
 
-5. **Why is there a gap between your evaluation results and the original paper?**
+7. **Why is there a gap between your evaluation results and the original paper?**
 
    Some works have not fully open-sourced the data processing and evaluation scripts used in their experiments, which makes it challenging to reproduce the results. We have made our best effort to debug and achieve optimal results, and we also welcome contributions such as pull requests to help update the results.
+
+8. **How do I run the demo case shown in the video?**
+   
+   Please refer to this [reply](https://github.com/OpenBMB/AgentCPM-GUI/issues/39#issuecomment-2918489075).
+
+9. **If the model is hosted on a remote server but the Android device can only access the local network, is it still possible to run the demo?**
+
+   Yes. While model inference typically requires a GPU and may not run efficiently on local devices, you can still connect your local Android environment to a remote inference server using SSH port forwarding. For example, you can run:
+   ```
+   ssh -L localhost:8000:127.0.0.1:8000 root@gpu_server
+   ```
+   This command forwards the remote server's API to your local machine, allowing you to access the model via `http://localhost:8000/v1/chat/completions` and enable automated interactions from your local Android device.
+
+10. **ValueError: At most 1 image(s) may be provided in one request.**
+    
+    Please refer to this [issue](https://github.com/OpenBMB/AgentCPM-GUI/issues/39).

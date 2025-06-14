@@ -10,16 +10,17 @@
   <a href="#quick-start">Quick Start</a> •
   <a href="https://huggingface.co/openbmb/AgentCPM-GUI">Model</a> •
   <a href="#evaluation-data">Evaluation Data</a> •
-  Technical Report
+  <a href="https://arxiv.org/abs/2506.01391">Technical Report</a>
 </p>
 
 ## News
 
+* [2025-06-03] 📄📄📄 We have released the **technical report** of AgentCPM-GUI! Check it out [here](https://arxiv.org/abs/2506.01391).
 * [2025-05-13] 🚀🚀🚀 We have open-sourced **AgentCPM-GUI**, an on-device GUI agent capable of operating Chinese & English apps and equipped with RFT-enhanced reasoning abilities.
 
 ## Overview
 
-**AgentCPM-GUI** is an open-source on-device LLM agent model jointly developed by [THUNLP](https://nlp.csai.tsinghua.edu.cn) and [ModelBest](https://modelbest.cn/en). Built on [MiniCPM-V](https://github.com/OpenBMB/MiniCPM-V) with 8 billion parameters, it accepts smartphone screenshots as input and autonomously executes user-specified tasks. 
+**AgentCPM-GUI** is an open-source on-device LLM agent model jointly developed by [THUNLP](https://nlp.csai.tsinghua.edu.cn), Renmin University of China and [ModelBest](https://modelbest.cn/en). Built on [MiniCPM-V](https://github.com/OpenBMB/MiniCPM-V) with 8 billion parameters, it accepts smartphone screenshots as input and autonomously executes user-specified tasks. 
 
 Key features include:
 
@@ -132,11 +133,19 @@ Expected output:
 {"thought":"任务目标是点击屏幕上的‘会员’按钮。当前界面显示了应用的推荐页面，顶部有一个导航栏。点击‘会员’按钮可以访问应用的会员相关内容。","POINT":[729,69]}
 ```
 
+Note: AgentCPM-GUI outputs relative coordinates ranging from 0-1000. The conversions are as follows:
+```python
+rel_x, rel_y = [int(abs_x / width * 1000), int(abs_y / height * 1000)]
+abs_x, abs_y = [int(rel_x / 1000 * width), int(rel_y / 1000 * height)]
+```
+where width and height refer to the original width and height of the image, respectively.
+
 #### vLLM Inference
 
 ```bash
 # Launch the vLLM server
-vllm serve model/AgentCPM-GUI --served-model-name AgentCPM-GUI --tensor_parallel_size 1 --trust-remote-code
+# If run out of VRAM, try add --max_model_len 2048
+vllm serve model/AgentCPM-GUI --served-model-name AgentCPM-GUI --tensor_parallel_size 1 --trust-remote-code --limit-mm-per-prompt image=10
 ```
 
 ```python
@@ -193,7 +202,7 @@ def predict(text_prompt: str, image: Image.Image):
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": [
-            {"type": "text", "text": f"<Question>{text_prompt}</Question>\n当前屏幕截图："},
+            {"type": "text", "text": f"<Question>{text_prompt}</Question>\n当前屏幕截图：(<image>./</image>)"},
             {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{encode_image(image)}"}}
         ]}
     ]
@@ -219,6 +228,25 @@ response = predict(instruction, image)
 print(response)
 ```
 
+### Action Space
+
+At each step, the agent outputs is a single JSON object that contains:
+- One (and only one) primitive action, chosen from the list below;
+- Optional modifiers (`duration`, `thought`) and/or a task-level flag (`STATUS`).
+
+Note that all keywords are **case-sensitive**, and we use **compact JSON** (i.e., no extra whitespace), which affects the tokenizer’s behavior.
+
+| Action         | Required field(s)                                                                                           | Optional field(s)             | Purpose                                                                     |  Example                                  |
+| --------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------- | --------------------------------------------------------------------------- | ------------------------------------------------ |
+| **Click**               | `POINT:[x,y]`                                                                                               | `duration`,`thought`,`STATUS` | Single tap at the normalized screen coordinate (0–1000, origin = top-left). | `{"POINT":[480,320]}`                            |
+| **Long Press**               | `POINT:[x,y]`<br>`duration:1000`                                                                                               | `duration`,`thought`,`STATUS` | Touch-and-hold at coordinate (set a longer duration, e.g. >200 ms). | `{"POINT":[480,320],"duration":1000}`                            |
+| **Swipe**      | `POINT:[x,y]`<br>`to:"up" \| "down" \| "left" \| "right"` **or** `to:[x,y]`                                 | `duration`,`thought`,`STATUS` | Swipe from the start point toward a direction **or** another coordinate.     | `{"POINT":[500,200],"to":"down"}` |
+| **Press key**         | `PRESS:"HOME" \| "BACK" \| "ENTER"`                                                                         | `duration`,`thought`,`STATUS` | Trigger a hardware / navigation button.                                     | `{"PRESS":"HOME"}`                |
+| **Type text**         | `TYPE:"<text>"`                                                                    | `duration`,`thought`,`STATUS` | Insert the given text at the current input focus.                           | `{"TYPE":"Hello, world!"}`                       |
+| **Wait**              | `duration`                                                                              | `thought`,`STATUS`            | Idle for the specified time without any other action.                       | `{"duration":500}`                               |
+| **Task-level status** | `STATUS:"start" \| "continue" \| "finish" \| "satisfied" \| "impossible" \| "interrupt" \| "need_feedback"` | `duration`,`thought`          | Report task progress; may appear **alone** or **with a primitive action**.  | `{"STATUS":"finish"}`                        |
+
+
 ## Fine-tuning
 
 Source code for SFT and RFT training is provided — see [SFT](sft/readme.md) and [RFT](rft/readme.md).
@@ -227,30 +255,30 @@ Source code for SFT and RFT training is provided — see [SFT](sft/readme.md) an
 
 ### Grounding Benchmark
 
-| Model                     | fun2point      | text2point     | bbox2text      | average        |
-| ------------------------- | -------------- | -------------- | -------------- | -------------- |
-| **AgentCPM-GUI-8B**       | **79.1**       | **76.5**       | **58.2**       | **71.3**       |
-| Qwen2.5-VL-7B             | 36.8           | 52.0           | 44.1           | 44.3           |
-| Intern2.5-VL-8B           | 17.2           | 24.2           | 45.9           | 29.1           |
-| Intern2.5-VL-26B          | 14.8           | 16.6           | 36.3           | 22.6           |
-| OS-Genesis-7B             | 8.3            | 5.8            | 4.0            | 6.0            |
-| UI-TARS-7B                | 56.8           | 66.7           | 1.4            | 41.6           |
-| OS-Altas-7B               | 53.6           | 60.7           | 0.4            | 38.2           |
-| Aguvis-7B                 | 60.8           | **76.5**       | 0.2            | 45.8           |
-| GPT-4o                    | 22.1           | 19.9           | 14.3           | 18.8           |
-| GPT-4o with Grounding     | 44.3           | 44.0           | 14.3           | 44.2           |
+| Model                   | Fun2Point | Text2Point | Bbox2text | Average |
+|-------------------------|-----------|------------|-----------|--------|
+| **AgentCPM-GUI-8B**     | **79.1**  | **76.5**   | **58.2**  |**71.3**|
+| Qwen2.5-VL-7B           | 59.8      | 59.3       | <ins>50.0</ins>      | <ins>56.4</ins>   |
+| Intern2.5-VL-8B         | 17.2      | 24.2       | 45.9      | 29.1   |
+| Intern2.5-VL-26B        | 14.8      | 16.6       | 36.3      | 22.6   |
+| OS-Genesis-7B	        | 8.3	      | 5.8	       | 4.0       | 6.0    |
+| UI-TARS-7B              | 56.8      | <ins>66.7</ins>       | 1.4       | 41.6   |
+| OS-Atlas-7B             | 53.6      | 60.7       | 0.4       | 38.2   |
+| Aguvis-7B	              | <ins>60.8</ins>      | **76.5**   | 0.2       | 45.8   |
+| GPT-4o                  | 22.1      | 19.9       | 14.3      | 18.8   |
+| GPT-4o with Grounding   | 44.3      | 44.0       | 14.3      | 44.2   |
 
 ### Agent Benchmark
 
 | Dataset                   | Android Control-Low TM | Android Control-Low EM | Android Control-High TM | Android Control-High EM | GUI-Odyssey TM  | GUI-Odyssey EM  | AITZ TM         | AITZ EM         | Chinese APP (CAGUI) TM  | Chinese APP (CAGUI) EM  |
 | ------------------------- | ---------------------- | ---------------------- | ----------------------- | ----------------------- | --------------- | --------------- | --------------- | --------------- | --------------- | --------------- |
-| **AgentCPM-GUI-8B** | **94.39**        | **90.20**        | **77.70**         | **69.17**         | **90.85** | **74.96** | **85.71** | **76.38** | **96.86** | **91.28** |
-| Qwen2.5-VL-7B             | 92.11                  | 82.12                  | 69.65                   | 57.36                   | 55.33           | 40.90           | 73.16           | 57.58           | 68.53           | 48.80           |
-| UI-TARS-7B                | 93.52                  | 88.89                  | 68.53                   | 60.81                   | 78.79           | 57.33           | 71.74           | 55.31           | 71.01           | 53.92           |
+| **AgentCPM-GUI-8B** | <ins>94.39</ins> | <ins>90.20</ins> | <ins>77.70</ins> | <ins>69.17</ins> | **90.85** | **74.96** | **85.71** | **76.38** | **96.86** | **91.28** |
+| Qwen2.5-VL-7B             | 94.14                  | 84.96                  | 75.10                   | 62.90                   | 59.54           | 46.28           | 78.41           | 54.61           | 74.18            | 55.16           |
+| UI-TARS-7B                | **95.24**                  | **91.79**                  | **81.63**                   | **74.43**                   | 86.06           | 67.90           | <ins>80.42</ins>           | <ins>65.77</ins>           | <ins>88.62</ins>           | <ins>70.26</ins>           |
 | OS-Genesis-7B             | 90.74                  | 74.22                  | 65.92                   | 44.43                   | 11.67           | 3.63            | 19.98           | 8.45            | 38.10           | 14.50           |
-| OS-Atlas-7B              | 73.03                  | 67.25                  | 70.36                   | 56.53                   | 91.83*           | 76.76*          | 74.13           | 58.45           | 81.53           | 55.89           |
+| OS-Atlas-7B               | 73.03                  | 67.25                  | 70.36                   | 56.53                   | 91.83*            | 76.76*           | 74.13           | 58.45           | 81.53           | 55.89           |
 | Aguvis-7B                 | 93.85                  | 89.40                  | 65.56                   | 54.18                   | 26.71           | 13.54           | 35.71           | 18.99           | 67.43           | 38.20           |
-| OdysseyAgent-7B           | 65.10                  | 39.16                  | 58.80                   | 32.74                   | 90.83           | 73.67           | 59.17           | 31.60           | 67.56           | 25.44           |
+| OdysseyAgent-7B           | 65.10                  | 39.16                  | 58.80                   | 32.74                   | <ins>90.83</ins>           | <ins>73.67</ins>           | 59.17           | 31.60           | 67.56           | 25.44           |
 | GPT-4o                    | -                      | 19.49                  | -                       | 20.80                   | -               | 20.39           | 70.00           | 35.30           | 3.67            | 3.67            |
 | Gemini 2.0                | -                      | 28.50                  | -                       | 60.20                   | -               | 3.27            | -               | -               | -               | -               |
 | Claude                    | -                      | 19.40                  | -                       | 12.50                   | 60.90           | -               | -               | -               | -               | -               |
@@ -263,6 +291,10 @@ TM and EM stand for the **Type Match** and **Exact Match**, respectively. All ev
 
 We provide **CAGUI**, an evaluation benchmark for Chinese apps covering **grounding** and **agent** tasks.
 See the dataset on [Hugging Face](https://huggingface.co/datasets/openbmb/CAGUI).
+
+## FAQs
+
+Click here to view the [FAQs](https://github.com/OpenBMB/AgentCPM-GUI/blob/main/eval/README.md#faqs).
 
 ## Trends
 
@@ -283,12 +315,10 @@ See the dataset on [Hugging Face](https://huggingface.co/datasets/openbmb/CAGUI)
 If **AgentCPM-GUI** is useful for your research, please cite:
 
 ```bibtex
-@misc{2025,
-  author       = {THUNLP},
-  title        = {AgentCPM-GUI},
-  year         = {2025},
-  publisher    = {GitHub},
-  journal      = {GitHub repository},
-  howpublished = {\url{https://github.com/OpenBMB/AgentCPM-GUI}}
+@article{zhang2025agentcpmgui,
+      title={Agent{CPM}-{GUI}: Building Mobile-Use Agents with Reinforcement Fine-Tuning}, 
+      author={Zhong Zhang and Yaxi Lu and Yikun Fu and Yupeng Huo and Shenzhi Yang and Yesai Wu and Han Si and Xin Cong and Haotian Chen and Yankai Lin and Jie Xie and Wei Zhou and Wang Xu and Yuanheng Zhang and Zhou Su and Zhongwu Zhai and Xiaoming Liu and Yudong Mei and Jianming Xu and Hongyan Tian and Chongyi Wang and Chi Chen and Yuan Yao and Zhiyuan Liu and Maosong Sun},
+      year={2025},
+      journal={arXiv preprint arXiv:2506.01391},
 }
 ```

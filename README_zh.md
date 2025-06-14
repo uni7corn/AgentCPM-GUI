@@ -10,16 +10,17 @@
   <a href="#快速开始">快速开始</a> •
   <a href="https://huggingface.co/openbmb/AgentCPM-GUI">模型</a> •
   <a href="#评测数据">评测数据</a> •
-  技术报告
+  <a href="https://arxiv.org/abs/2506.01391">技术报告</a>
 </p>
 
 ## 更新日志
 
-* [2025.05.13] 🚀🚀🚀 我们开源了AgentCPM-GUI，面向端侧的GUI Agent，拥有中英文APP操作能力，并基于RFT优化思考能力。
+* [2025-06-03] 📄📄📄 我们发布了AgentCPM-GUI的**技术报告**！点击[这里](https://arxiv.org/abs/2506.01391)查看。
+* [2025-05-13] 🚀🚀🚀 我们开源了AgentCPM-GUI，面向端侧的GUI Agent，拥有中英文APP操作能力，并基于RFT优化思考能力。
 
 ## 概述
 
-**AgentCPM-GUI**是由[清华大学THUNLP实验室](https://nlp.csai.tsinghua.edu.cn)与[面壁智能](https://modelbest.cn/en)团队联合开发的开源端侧智能体大模型，基于[MiniCPM-V](https://github.com/OpenBMB/MiniCPM-V)构建，总参数量8B，接受手机屏幕图像作为输入，自动执行用户提出的任务。AgentCPM-GUI的主要特性包括：
+**AgentCPM-GUI**是由[清华大学THUNLP实验室](https://nlp.csai.tsinghua.edu.cn)、中国人民大学与[面壁智能](https://modelbest.cn/en)团队联合开发的开源端侧智能体大模型，基于[MiniCPM-V](https://github.com/OpenBMB/MiniCPM-V)构建，总参数量8B，接受手机屏幕图像作为输入，自动执行用户提出的任务。AgentCPM-GUI的主要特性包括：
 
 - **高质量GUI Grounding**：通过在大规模中英文Android数据集上进行预训练，有效提升了对常见GUI控件（如按钮、输入框、标签、图标等）的定位与理解能力；
 - **中文APP操作能力**：首个针对中文APP精细优化的开源GUI Agent，覆盖高德地图、大众点评、哔哩哔哩、小红书等30余个主流中文APP；
@@ -130,11 +131,19 @@ print(outputs)
 {"thought":"任务目标是点击屏幕上的‘会员’按钮。当前界面显示了应用的推荐页面，顶部有一个导航栏。点击‘会员’按钮可以访问应用的会员相关内容。","POINT":[729,69]}
 ```
 
+注意: AgentCPM-GUI输出范围0-1000的相对坐标，绝对坐标和相对坐标的转换关系如下：
+```python
+rel_x, rel_y = [int(abs_x / width * 1000), int(abs_y / height * 1000)]
+abs_x, abs_y = [int(rel_x / 1000 * width), int(rel_y / 1000 * height)]
+```
+其中，“width”和“height”分别指图像的原始宽度和高度。
+
 #### vLLM推理
 
 ```bash
 # 启动vLLM服务
-vllm serve model/AgentCPM-GUI --served-model-name AgentCPM-GUI --tensor_parallel_size 1 --trust-remote-code
+# 如果显存不足，可以尝试参数 --max_model_len 2048
+vllm serve model/AgentCPM-GUI --served-model-name AgentCPM-GUI --tensor_parallel_size 1 --trust-remote-code --limit-mm-per-prompt image=10
 ```
 
 ```python
@@ -192,7 +201,7 @@ def predict(text_prompt: str, image: Image.Image):
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": [
-            {"type": "text", "text": f"<Question>{text_prompt}</Question>\n当前屏幕截图："},
+            {"type": "text", "text": f"<Question>{text_prompt}</Question>\n当前屏幕截图：(<image>./</image>)"},
             {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{encode_image(image)}"}}
         ]}
     ]
@@ -218,6 +227,26 @@ response = predict(instruction, image)
 print(response)
 ```
 
+### 动作空间
+
+在每一步中，智能体都会输出一个 **JSON** 对象，其中包含：
+
+* **唯一**的原子动作（需从下表中选择）；
+* 可选修饰符（`duration`, `thought`）和/或任务级标志位（`STATUS`）。
+
+请注意，所有关键字均 **区分大小写**，并且我们使用 **紧凑 JSON**（即无多余空格），这会影响 tokenizer 的行为。
+
+| Action                | 必填字段                                                                                                        | 可选字段                          | 功能说明                                  | 例子                                     |
+| --------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------- | -------------------------------------- |
+| **Click**             | `POINT:[x,y]`                                                                                               | `duration`,`thought`,`STATUS` | 在归一化坐标系 (0–1000，原点位于左上角) 执行一次轻触。      | `{"POINT":[480,320]}`                  |
+| **Long Press**        | `POINT:[x,y]`<br>`duration:1000`                                                                            | `duration`,`thought`,`STATUS` | 在指定坐标执行长按操作（需设置较长持续时间，例如 > 200 ms）。   | `{"POINT":[480,320]","duration":1000}` |
+| **Swipe**             | `POINT:[x,y]`<br>`to:"up" \| "down" \| "left" \| "right"` **或** `to:[x,y]`                                  | `duration`,`thought`,`STATUS` | 从起始点滑向指定方向 **或** 另一坐标。                | `{"POINT":[500,200],"to":"down"}`      |
+| **Press key**         | `PRESS:"HOME" \| "BACK" \| "ENTER"`                                                                         | `duration`,`thought`,`STATUS` | 触发硬件 / 导航按键。                          | `{"PRESS":"HOME"}`                     |
+| **Type text**         | `TYPE:"<text>"`                                                                                             | `duration`,`thought`,`STATUS` | 在当前输入焦点处输入给定文本。                       | `{"TYPE":"Hello, world!"}`             |
+| **Wait**              | `duration`                                                                                                  | `thought`,`STATUS`            | 在指定时长内保持空闲，不执行任何其他动作。                 | `{"duration":500}`                     |
+| **Task-level status** | `STATUS:"start" \| "continue" \| "finish" \| "satisfied" \| "impossible" \| "interrupt" \| "need_feedback"` | `duration`,`thought`          | 上报任务进度；可 **单独** 出现，也可与原子动作 **同时** 出现。 | `{"STATUS":"finish"}`                  |
+
+
 ## 模型微调
 
 我们开源了训练模型的SFT和RFT代码，参考文档[SFT](sft/readme.md)和[RFT](rft/readme.md)。
@@ -226,30 +255,30 @@ print(response)
 
 ### Grounding Benchmark
 
-| Model                     | fun2point      | text2point     | bbox2text      | average        |
-| ------------------------- | -------------- | -------------- | -------------- | -------------- |
-| **AgentCPM-GUI-8B** | **79.1** | **76.5** | **58.2** | **71.3** |
-| Qwen2.5-VL-7B             | 36.8           | 52.0           | 44.1           | 44.3           |
-| Intern2.5-VL-8B           | 17.2           | 24.2           | 45.9           | 29.1           |
-| Intern2.5-VL-26B          | 14.8           | 16.6           | 36.3           | 22.6           |
-| OS-Genesis-7B             | 8.3            | 5.8            | 4.0            | 6.0            |
-| UI-TARS-7B                | 56.8           | 66.7           | 1.4            | 41.6           |
-| OS-Altas-7B               | 53.6           | 60.7           | 0.4            | 38.2           |
-| Aguvis-7B                 | 60.8           | **76.5**       | 0.2            | 45.8           |
-| GPT-4o                    | 22.1           | 19.9           | 14.3           | 18.8           |
-| GPT-4o with Grounding     | 44.3           | 44.0           | 14.3           | 44.2           |
+| Model                   | Fun2Point | Text2Point | Bbox2text | Average |
+|-------------------------|-----------|------------|-----------|--------|
+| **AgentCPM-GUI-8B**     | **79.1**  | **76.5**   | **58.2**  |**71.3**|
+| Qwen2.5-VL-7B           | 59.8      | 59.3       | <ins>50.0</ins>      | <ins>56.4</ins>   |
+| Intern2.5-VL-8B         | 17.2      | 24.2       | 45.9      | 29.1   |
+| Intern2.5-VL-26B        | 14.8      | 16.6       | 36.3      | 22.6   |
+| OS-Genesis-7B	        | 8.3	      | 5.8	       | 4.0       | 6.0    |
+| UI-TARS-7B              | 56.8      | <ins>66.7</ins>       | 1.4       | 41.6   |
+| OS-Atlas-7B             | 53.6      | 60.7       | 0.4       | 38.2   |
+| Aguvis-7B	              | <ins>60.8</ins>      | **76.5**   | 0.2       | 45.8   |
+| GPT-4o                  | 22.1      | 19.9       | 14.3      | 18.8   |
+| GPT-4o with Grounding   | 44.3      | 44.0       | 14.3      | 44.2   |
 
 ### Agent Benchmark
 
 | Dataset                   | Android Control-Low TM | Android Control-Low EM | Android Control-High TM | Android Control-High EM | GUI-Odyssey TM  | GUI-Odyssey EM  | AITZ TM         | AITZ EM         | Chinese APP (CAGUI) TM  | Chinese APP (CAGUI) EM  |
 | ------------------------- | ---------------------- | ---------------------- | ----------------------- | ----------------------- | --------------- | --------------- | --------------- | --------------- | --------------- | --------------- |
-| **AgentCPM-GUI-8B** | **94.39**        | **90.20**        | **77.70**         | **69.17**         | **90.85** | **74.96** | **85.71** | **76.38** | **96.86** | **91.28** |
-| Qwen2.5-VL-7B             | 92.11                  | 82.12                  | 69.65                   | 57.36                   | 55.33           | 40.90           | 73.16           | 57.58           | 68.53           | 48.80           |
-| UI-TARS-7B                | 93.52                  | 88.89                  | 68.53                   | 60.81                   | 78.79           | 57.33           | 71.74           | 55.31           | 71.01           | 53.92           |
+| **AgentCPM-GUI-8B** | <ins>94.39</ins> | <ins>90.20</ins> | <ins>77.70</ins> | <ins>69.17</ins> | **90.85** | **74.96** | **85.71** | **76.38** | **96.86** | **91.28** |
+| Qwen2.5-VL-7B             | 94.14                  | 84.96                  | 75.10                   | 62.90                   | 59.54           | 46.28           | 78.41           | 54.61           | 74.18            | 55.16           |
+| UI-TARS-7B                | **95.24**                  | **91.79**                  | **81.63**                   | **74.43**                   | 86.06           | 67.90           | <ins>80.42</ins>           | <ins>65.77</ins>           | <ins>88.62</ins>           | <ins>70.26</ins>           |
 | OS-Genesis-7B             | 90.74                  | 74.22                  | 65.92                   | 44.43                   | 11.67           | 3.63            | 19.98           | 8.45            | 38.10           | 14.50           |
-| OS-Atlas-7B               | 73.03                  | 67.25                  | 70.36                   | 56.53                   | 91.83*          | 76.76*          | 74.13           | 58.45           | 81.53           | 55.89           |
+| OS-Atlas-7B               | 73.03                  | 67.25                  | 70.36                   | 56.53                   | 91.83*            | 76.76*           | 74.13           | 58.45           | 81.53           | 55.89           |
 | Aguvis-7B                 | 93.85                  | 89.40                  | 65.56                   | 54.18                   | 26.71           | 13.54           | 35.71           | 18.99           | 67.43           | 38.20           |
-| OdysseyAgent-7B           | 65.10                  | 39.16                  | 58.80                   | 32.74                   | 90.83           | 73.67           | 59.17           | 31.60           | 67.56           | 25.44           |
+| OdysseyAgent-7B           | 65.10                  | 39.16                  | 58.80                   | 32.74                   | <ins>90.83</ins>           | <ins>73.67</ins>           | 59.17           | 31.60           | 67.56           | 25.44           |
 | GPT-4o                    | -                      | 19.49                  | -                       | 20.80                   | -               | 20.39           | 70.00           | 35.30           | 3.67            | 3.67            |
 | Gemini 2.0                | -                      | 28.50                  | -                       | 60.20                   | -               | 3.27            | -               | -               | -               | -               |
 | Claude                    | -                      | 19.40                  | -                       | 12.50                   | 60.90           | -               | -               | -               | -               | -               |
@@ -260,7 +289,11 @@ TM和EM分别代表**类型匹配（Type Match）**和**完全匹配（Exact Mat
 
 ## 评测数据
 
-我们开源了面向中文APP场景的评测数据集CAGUI，涵盖**grounding**和**agent**两类任务，详情见[Huggingface](https://huggingface.co/datasets/openbmb/CAGUI)
+我们开源了面向中文APP场景的评测数据集CAGUI，涵盖**grounding**和**agent**两类任务，详情见[Huggingface](https://huggingface.co/datasets/openbmb/CAGUI)。
+
+## FAQs
+
+点击查看 [FAQs](https://github.com/OpenBMB/AgentCPM-GUI/blob/main/eval/README.md#faqs)。
 
 ## 趋势
 
@@ -275,19 +308,17 @@ TM和EM分别代表**类型匹配（Type Match）**和**完全匹配（Exact Mat
 
 ## 模型协议
 
-* 本仓库中代码依照 [Apache-2.0](./LICENSE) 协议开源
+* 本仓库中代码依照 [Apache-2.0](./LICENSE) 协议开源。
 
 ## 引用
 
 如果你认为该项目对你的研究有帮助，请考虑引用：
 
 ```bibtex
-@misc{2025,
-  author = {THUNLP},
-  title = {AgentCPM-GUI},
-  year = {2025},
-  publisher = {GitHub},
-  journal = {GitHub repository},
-  howpublished = {\url{https://github.com/OpenBMB/AgentCPM-GUI}}
+@article{zhang2025agentcpmgui,
+      title={Agent{CPM}-{GUI}: Building Mobile-Use Agents with Reinforcement Fine-Tuning}, 
+      author={Zhong Zhang and Yaxi Lu and Yikun Fu and Yupeng Huo and Shenzhi Yang and Yesai Wu and Han Si and Xin Cong and Haotian Chen and Yankai Lin and Jie Xie and Wei Zhou and Wang Xu and Yuanheng Zhang and Zhou Su and Zhongwu Zhai and Xiaoming Liu and Yudong Mei and Jianming Xu and Hongyan Tian and Chongyi Wang and Chi Chen and Yuan Yao and Zhiyuan Liu and Maosong Sun},
+      year={2025},
+      journal={arXiv preprint arXiv:2506.01391},
 }
 ```
